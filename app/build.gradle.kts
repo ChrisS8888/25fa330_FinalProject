@@ -62,6 +62,12 @@ dependencies {
     // For Coil (Image Loading)
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    // For viewModel() composable
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
+
+    // For Jetpack Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
