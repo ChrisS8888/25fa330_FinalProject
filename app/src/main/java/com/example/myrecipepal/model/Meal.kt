@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 // This class represents the entire JSON response from the API
 @Serializable
 data class MealApiResponse(
-    val meals: List<Meal>
+    val meals: List<Meal>? = null
 )
 
 // This class represents a single recipe item in the list
@@ -20,5 +20,8 @@ data class Meal(
     val name: String,
 
     @SerialName("strMealThumb")
-    val thumbnail: String
+    val thumbnail: String? = null,
+
+    @SerialName("strInstructions")
+    val instructions: String? = null,
 )

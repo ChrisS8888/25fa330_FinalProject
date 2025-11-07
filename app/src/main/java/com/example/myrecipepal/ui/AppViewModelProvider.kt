@@ -19,6 +19,11 @@ object AppViewModelProvider {
             // Create the ViewModel, passing the repository
             RecipeListViewModel(recipeRepository = recipeRepository)
         }
+
+        initializer {
+            val recipeRepository = myRecipePalApplication().container.recipeRepository
+            RecipeDetailViewModel(recipeRepository = recipeRepository)
+        }
     }
 }
 

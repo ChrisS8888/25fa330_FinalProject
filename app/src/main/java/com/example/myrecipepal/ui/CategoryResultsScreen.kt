@@ -14,14 +14,20 @@ import com.example.myrecipepal.model.Meal
 import com.example.myrecipepal.ui.components.RecipeCard
 
 @Composable
-fun CategoryResultsScreen(uiState: RecipeUiState, modifier: Modifier = Modifier) {
+fun CategoryResultsScreen(
+    uiState: RecipeUiState,
+    onRecipeClicked: (String) -> Unit,
+    modifier: Modifier = Modifier) {
     when (uiState) {
         is RecipeUiState.Loading -> {
             // You can make a fancier loading indicator later
             Text("Loading recipes...", modifier = modifier.fillMaxSize())
         }
         is RecipeUiState.Success -> {
-            RecipeGrid(recipes = uiState.recipes, modifier = modifier)
+            RecipeGrid(
+                recipes = uiState.recipes,
+                onRecipeClicked = onRecipeClicked,
+                modifier = modifier)
         }
         is RecipeUiState.Error -> {
             Text("Error: Failed to load recipes.", modifier = modifier.fillMaxSize())
@@ -30,13 +36,16 @@ fun CategoryResultsScreen(uiState: RecipeUiState, modifier: Modifier = Modifier)
 }
 
 @Composable
-fun RecipeGrid(recipes: List<Meal>, modifier: Modifier = Modifier) {
+fun RecipeGrid(
+    recipes: List<Meal>,
+    onRecipeClicked: (String) -> Unit,
+    modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         modifier = modifier.padding(horizontal = 4.dp)
     ) {
         items(items = recipes, key = { recipe -> recipe.id }) { recipe ->
-            RecipeCard(meal = recipe)
+            RecipeCard(meal = recipe, onClick = { onRecipeClicked(recipe.id)})
         }
     }
 }

@@ -26,6 +26,9 @@ interface MealDbApiService {
     // Endpoint to get recipes by category
     @GET("filter.php")
     suspend fun getRecipesByCategory(@Query("c") category: String): MealApiResponse
+
+    @GET("lookup.php")
+    suspend fun getRecipeDetailsById(@Query("i") id: String): MealApiResponse
 }
 
 // Public object to create and expose the Retrofit service
