@@ -20,7 +20,8 @@ data class Meal(
     val name: String,
 
     @SerialName("strMealThumb")
-    val thumbnail: String? = null,
+    val thumbnail: String? = null, //CHANGED LINE 25 TO ALLOW FOR NULL, SO IF THERE IS NO PIC, WE IGHT
+
 
     @SerialName("strInstructions")
     val instructions: String? = null,

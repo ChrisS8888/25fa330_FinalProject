@@ -17,6 +17,8 @@ import com.example.myrecipepal.ui.components.RecipeCard
 fun CategoryResultsScreen(
     uiState: RecipeUiState,
     onRecipeClicked: (String) -> Unit,
+    isFavorite: (Meal) -> Boolean, // ADDED <---- SUPER COOL FAV BUTTON
+    onFavoriteClick: (Meal) -> Unit, // ADDED <---- FAV BUTTON CLICK
     modifier: Modifier = Modifier) {
     when (uiState) {
         is RecipeUiState.Loading -> {
@@ -27,6 +29,8 @@ fun CategoryResultsScreen(
             RecipeGrid(
                 recipes = uiState.recipes,
                 onRecipeClicked = onRecipeClicked,
+                isFavorite = isFavorite, // fav implementation
+                onFavoriteClick = onFavoriteClick, // fav click implementation
                 modifier = modifier)
         }
         is RecipeUiState.Error -> {
@@ -39,13 +43,22 @@ fun CategoryResultsScreen(
 fun RecipeGrid(
     recipes: List<Meal>,
     onRecipeClicked: (String) -> Unit,
+    isFavorite: (Meal) -> Boolean,
+    onFavoriteClick: (Meal) -> Unit,
     modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         modifier = modifier.padding(horizontal = 4.dp)
     ) {
         items(items = recipes, key = { recipe -> recipe.id }) { recipe ->
-            RecipeCard(meal = recipe, onClick = { onRecipeClicked(recipe.id)})
+            RecipeCard(
+                meal = recipe,
+                isFavorite = isFavorite(recipe),
+                onFavoriteClick = { onFavoriteClick(recipe) },
+                onClick = { onRecipeClicked(recipe.id)
+
+                }
+            )
         }
     }
 }

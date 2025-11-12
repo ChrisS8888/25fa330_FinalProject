@@ -53,6 +53,8 @@ import com.example.myrecipepal.ui.RecipeListViewModel
 import com.example.myrecipepal.ui.theme.MyRecipePalTheme
 import com.example.myrecipepal.ui.RecipeDetailScreen // You will create this file next
 import com.example.myrecipepal.ui.RecipeDetailViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +66,8 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     val recipeViewModel: RecipeListViewModel =
                         viewModel(factory = AppViewModelProvider.Factory)
+                    // Collect the set of favorite recipe IDs as state
+                    val favoriteIds by recipeViewModel.favoriteRecipeIds.collectAsState()
 
                     // 2. Create a NavHost to define the navigation graph
                     NavHost(
@@ -107,6 +111,8 @@ class MainActivity : ComponentActivity() {
 
                             CategoryResultsScreen(
                                 uiState = recipeListViewModel.recipeUiState,
+                                isFavorite = { meal -> favoriteIds.contains(meal.id) }, // NEW <---- SUPER COOL
+                                onFavoriteClick = { meal -> recipeViewModel.toggleFavorite(meal) },// NEW <---- COOL
                                 // ADD ONCLICK HANDLER
                                 onRecipeClicked = { mealId ->
                                     navController.navigate("details/$mealId")

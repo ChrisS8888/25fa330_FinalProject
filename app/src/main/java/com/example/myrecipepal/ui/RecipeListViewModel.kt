@@ -10,6 +10,10 @@ import com.example.myrecipepal.data.RecipeRepository
 import com.example.myrecipepal.model.Meal
 import kotlinx.coroutines.launch
 import java.io.IOException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 // This sealed interface represents the different states the UI can be in
 /*sealed interface RecipeUiState {
@@ -28,6 +32,11 @@ class RecipeListViewModel(private val recipeRepository: RecipeRepository) : View
     /** The mutable State that stores the status of the most recent request */
     var recipeUiState: RecipeUiState by mutableStateOf(RecipeUiState.Loading(""))
         private set
+    // Private mutable state flow to hold the set of favorite recipe IDs
+    private val _favoriteRecipeIds = MutableStateFlow<Set<String>>(emptySet()) // NEW <---- SUPER COOL
+
+    // Public immutable state flow for the UI to observe
+    val favoriteRecipeIds: StateFlow<Set<String>> = _favoriteRecipeIds.asStateFlow() // NEW <---- COOL
 
     /**
      * Call getRecipes() on init so we can display status immediately.
@@ -36,6 +45,17 @@ class RecipeListViewModel(private val recipeRepository: RecipeRepository) : View
         // Load desserts by default when the ViewModel is first created
         getRecipes("Dessert")
     }*/
+    fun toggleFavorite(meal: Meal) {
+        viewModelScope.launch {
+            _favoriteRecipeIds.update { currentFavorites ->
+                if (currentFavorites.contains(meal.id)) {
+                    currentFavorites - meal.id
+                } else {
+                    currentFavorites + meal.id
+                }
+            }
+        }
+    }
 
     /**
      * Gets recipe information from the API and updates the UI State.
