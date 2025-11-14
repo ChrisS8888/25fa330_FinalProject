@@ -25,4 +25,8 @@ data class Meal(
 
     @SerialName("strInstructions")
     val instructions: String? = null,
+
+    @SerialName("strCategory")
+    val category: String? = null
+
 )

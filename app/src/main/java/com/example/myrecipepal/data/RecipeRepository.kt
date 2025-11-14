@@ -1,32 +1,3 @@
-/*package com.example.myrecipepal.data
-
-import com.example.myrecipepal.model.Meal
-import com.example.myrecipepal.network.MealDbApiService
-
-/**
- * Repository that fetches a list of recipes from TheMealDB API.
- */
-interface RecipeRepository {
-    suspend fun getRecipesByCategory(category: String): List<Meal>
-    suspend fun getRecipeDetailsById(id: String): Meal
-}
-
-/**
- * Network implementation of the Repository.
- */
-class NetworkRecipeRepository(
-    private val mealDbApiService: MealDbApiService
-) : RecipeRepository {
-    override suspend fun getRecipesByCategory(category: String): List<Meal> {
-        // The API returns a MealApiResponse, we only want the list of meals
-        return mealDbApiService.getRecipesByCategory(category).meals
-    }
-
-    override suspend fun getRecipeDetailsById(id: String): Meal {
-        // The API returns a list containing just one meal, so we safely get the first element.
-        return mealDbApiService.getRecipeDetailsById(id).meals.first()
-    }
-}*/
 
 // In data/RecipeRepository.kt
 package com.example.myrecipepal.data
