@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MyRecipePal</string>
+    <string name="filter_recipes_label">Filter recipes by name...</string>
 </resources>
