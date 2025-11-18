@@ -42,9 +42,11 @@ fun CategoryResultsScreen(
         modifier = modifier
     ) { innerPadding ->
         // Use a Column to place the search bar above the recipe grid.
-        Column(modifier = modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
 
             // The search bar UI. It's connected to the ViewModel via the parameters.
             OutlinedTextField(
@@ -91,7 +93,7 @@ fun CategoryResultsScreen(
             }
         }
     }
-
+}
     @Composable
     fun RecipeGrid(
         recipes: List<Meal>,
@@ -115,5 +117,4 @@ fun CategoryResultsScreen(
             }
         }
     }
-}
 
