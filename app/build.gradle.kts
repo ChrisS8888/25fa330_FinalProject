@@ -8,6 +8,8 @@ plugins {
     id("com.google.devtools.ksp") version "2.0.21-1.0.25"
 }
 
+val roomVersion = "2.6.1"
+
 android {
     namespace = "com.example.myrecipepal"
     compileSdk = 36
@@ -34,6 +36,11 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/java", "src/main/database")
+        }
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -73,7 +80,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     // 🔹 Room (your database)
-    val roomVersion = "2.6.1"
+    //val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")

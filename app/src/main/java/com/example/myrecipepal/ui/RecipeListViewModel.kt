@@ -4,86 +4,10 @@
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.filter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myrecipepal.data.RecipeRepository
-import com.example.myrecipepal.model.Meal
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import java.io.IOException
-
-/**
- * This ViewModel is now ONLY responsible for the list of recipes and favorites.
- */
-
-// This sealed interface represents the different states the list screen can be in.
-sealed interface RecipeUiState {
-    data class Success(val recipes: List<Meal>, val categoryName: String) : RecipeUiState
-    object Error : RecipeUiState
-    data class Loading(val categoryName: String) : RecipeUiState
-}
-
-class RecipeListViewModel(private val recipeRepository: RecipeRepository) : ViewModel() {
-    /** The mutable State that stores the status of the recipe list request */
-    var recipeUiState: RecipeUiState by mutableStateOf(RecipeUiState.Loading(""))
-        private set
-
-    // --- ALL DETAIL SCREEN LOGIC HAS BEEN REMOVED FROM THIS FILE ---
-    //          PUT IT IN THE DETAIL VIEW MODEL FILE
-
-
-    // Private mutable state flow to hold the set of favorite recipe IDs
-    private val _favoriteRecipeIds = MutableStateFlow<Set<String>>(emptySet())
-
-    // Public immutable state flow for the UI to observe
-    val favoriteRecipeIds: StateFlow<Set<String>> = _favoriteRecipeIds.asStateFlow()
-
-    fun toggleFavorite(meal: Meal) {
-        viewModelScope.launch {
-            _favoriteRecipeIds.update { currentFavorites ->
-                if (currentFavorites.contains(meal.id)) {
-                    currentFavorites - meal.id
-                } else {
-                    currentFavorites + meal.id
-                }
-            }
-        }
-    }
-
-    /**
-     * Gets recipe information from the API and updates the UI State for the list screen.
-     */
-    fun getRecipes(category: String) {
-        viewModelScope.launch {
-            val currentState = recipeUiState
-            // Avoids reloading if the data is already present.
-            if (currentState is RecipeUiState.Success && currentState.recipes.isNotEmpty() && currentState.categoryName == category) {
-                return@launch
-            }
-            recipeUiState = RecipeUiState.Loading(category)
-            recipeUiState = try {
-                val recipes = recipeRepository.getRecipesByCategory(category)
-                RecipeUiState.Success(recipes, category)
-            } catch (e: IOException) {
-                RecipeUiState.Error
-            }
-        }
-    }
-}*/
-
-// In ui/RecipeListViewModel.kt
-package com.example.myrecipepal.ui
-
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.myrecipepal.data.RecipeRepository
+import com.example.myrecipepal.database.Recipe
 import com.example.myrecipepal.model.Meal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -133,6 +57,35 @@ class RecipeListViewModel(private val recipeRepository: RecipeRepository) : View
         }
     }
 
+    /*fun toggleFavorite(meal: Meal) {
+        viewModelScope.launch {
+            val recipeId = meal.id
+            if (favoriteRecipeIds.value.contains(recipeId)) {
+                // If it's already a favorite, create a recipe object to remove it
+                val recipeToRemove = Recipe(
+                    idMeal = meal.id,
+                    strMeal = meal.name,
+                    strMealThumb = meal.thumbnail,
+                    // --- Pass the new fields for removal ---
+                    strInstructions = meal.instructions,
+                    strCategory = meal.category
+                )
+                recipeRepository.removeFavorite(recipeToRemove)
+            } else {
+                // If it's a new favorite, create a recipe object to add it
+                val recipeToAdd = Recipe(
+                    idMeal = meal.id,
+                    strMeal = meal.name,
+                    strMealThumb = meal.thumbnail,
+                    // --- Pass the new fields for addition ---
+                    strInstructions = meal.instructions,
+                    strCategory = meal.category
+                )
+                recipeRepository.addFavorite(recipeToAdd)
+            }
+        }
+    }*/
+
     /**
      * Gets recipe information from the API and updates the UI State for the list screen.
      */
@@ -180,115 +133,124 @@ class RecipeListViewModel(private val recipeRepository: RecipeRepository) : View
             recipeUiState = currentState.copy(recipes = filteredList)
         }
     }
+}*/
+
+// In ui/RecipeListViewModel.kt
+package com.example.myrecipepal.ui
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.myrecipepal.data.RecipeRepository
+import com.example.myrecipepal.database.FavoritesRepository
+import com.example.myrecipepal.database.Recipe
+import com.example.myrecipepal.model.Meal
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.io.IOException
+
+// This sealed interface from your old code represents the different UI states. It's good, let's keep it.
+sealed interface RecipeUiState {
+    data class Success(val recipes: List<Meal>, val categoryName: String) : RecipeUiState
+    object Error : RecipeUiState
+    data class Loading(val categoryName: String) : RecipeUiState
+}
+
+// FIX: The constructor accepts BOTH repositories
+class RecipeListViewModel(
+    private val recipeRepository: RecipeRepository,
+    private val favoritesRepository: FavoritesRepository
+) : ViewModel() {
+
+    // --- FROM OLD CODE: The mutable State that stores the UI status ---
+    var recipeUiState: RecipeUiState by mutableStateOf(RecipeUiState.Loading(""))
+        private set
+
+    // --- FROM OLD CODE: State to hold the user's search text ---
+    var searchQuery by mutableStateOf("")
+        private set
+
+    // --- FROM OLD CODE: Private property to hold the original, unfiltered list for searching ---
+    private var originalRecipes: List<Meal> = emptyList()
+
+    // --- FROM NEW CODE: This holds the IDs of all favorited recipes from the database ---
+    val favoriteRecipeIds: StateFlow<Set<String>> =
+        favoritesRepository.getAllFavorites()
+            .map { favoriteRecipes -> favoriteRecipes.map { it.idMeal }.toSet() }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = emptySet()
+            )
+
+    init {
+        // We will now use your original getRecipes function.
+        getRecipes("Dessert") // Initial fetch
+    }
+
+    // --- FROM NEW CODE: The updated toggleFavorite function that writes to the database ---
+    fun toggleFavorite(meal: Meal) {
+        viewModelScope.launch {
+            val recipe = Recipe(
+                idMeal = meal.id,
+                strMeal = meal.name,
+                strMealThumb = meal.thumbnail,
+                strInstructions = meal.instructions,
+                strCategory = meal.category
+            )
+            // Use the correct repository to add/remove from the database
+            if (favoriteRecipeIds.value.contains(recipe.idMeal)) {
+                favoritesRepository.removeFavorite(recipe)
+            } else {
+                favoritesRepository.addFavorite(recipe)
+            }
+        }
+    }
+
+    // --- FROM OLD CODE: Your original function to fetch recipes from the API. This is what MainActivity should call. ---
+    fun getRecipes(category: String) {
+        viewModelScope.launch {
+            // Avoids reloading if the data is already present and the category is the same.
+            val currentState = recipeUiState
+            if (currentState is RecipeUiState.Success && currentState.recipes.isNotEmpty() && currentState.categoryName == category) {
+                return@launch
+            }
+            recipeUiState = RecipeUiState.Loading(category)
+            try {
+                // Fetch the recipes from the repository.
+                val recipes = recipeRepository.getRecipesByCategory(category)
+                // Store the original list for filtering.
+                originalRecipes = recipes
+                // Update the UI state with the full list.
+                recipeUiState = RecipeUiState.Success(recipes, category)
+            } catch (e: IOException) {
+                recipeUiState = RecipeUiState.Error
+            }
+        }
+    }
+
+    // --- FROM OLD CODE: Your function to handle search bar changes. It works with the RecipeUiState. ---
+    fun onSearchQueryChanged(newQuery: String) {
+        searchQuery = newQuery
+        val currentState = recipeUiState
+        if (currentState is RecipeUiState.Success) {
+            val filteredList = if (newQuery.isBlank()) {
+                originalRecipes // Show original list if search is empty
+            } else {
+                originalRecipes.filter { meal ->
+                    meal.name.contains(newQuery, ignoreCase = true)
+                }
+            }
+            // Update the UI state with the filtered list, keeping the same category name.
+            recipeUiState = currentState.copy(recipes = filteredList)
+        }
+    }
 }
 
 
-//// In ui/RecipeListViewModel.kt
-//package com.example.myrecipepal.ui
-//
-//import androidx.compose.runtime.getValue
-//import androidx.compose.runtime.mutableStateOf
-//import androidx.compose.runtime.setValue
-//import androidx.lifecycle.ViewModel
-//import androidx.lifecycle.viewModelScope
-//import com.example.myrecipepal.data.RecipeRepository
-//import com.example.myrecipepal.model.Meal
-//import kotlinx.coroutines.launch
-//import java.io.IOException
-//import kotlinx.coroutines.flow.MutableStateFlow
-//import kotlinx.coroutines.flow.StateFlow
-//import kotlinx.coroutines.flow.asStateFlow
-//import kotlinx.coroutines.flow.update
-//
-//// This sealed interface represents the different states the UI can be in
-///*sealed interface RecipeUiState {
-//    data class Success(val recipes: List<Meal>) : RecipeUiState
-//    object Error : RecipeUiState
-//    object Loading : RecipeUiState
-//}*/
-//// Add the categoryName to your UiState to keep track of what's loaded
-//sealed interface RecipeUiState {
-//    data class Success(val recipes: List<Meal>, val categoryName: String) : RecipeUiState
-//    object Error : RecipeUiState
-//    data class Loading(val categoryName: String) : RecipeUiState
-//}
-////ADDED UI STATE FOR THE RECIPE DETAIL SCREEN
-//sealed interface RecipeDetailUiState {
-//    data class Success(val recipe: Meal) : RecipeDetailUiState
-//    object Error : RecipeDetailUiState
-//    object Loading : RecipeDetailUiState
-//}
-//
-//class RecipeListViewModel(private val recipeRepository: RecipeRepository) : ViewModel() {
-//    /** The mutable State that stores the status of the most recent request */
-//    var recipeUiState: RecipeUiState by mutableStateOf(RecipeUiState.Loading(""))
-//        private set
-//
-//    // ADDED STATE FOR THE RECIPE DETAIL SCREEN
-//    var recipeDetailUiState: RecipeDetailUiState by mutableStateOf(RecipeDetailUiState.Loading)
-//        private set
-//
-//
-//    // Private mutable state flow to hold the set of favorite recipe IDs
-//    private val _favoriteRecipeIds = MutableStateFlow<Set<String>>(emptySet())
-//
-//    // Public immutable state flow for the UI to observe
-//    val favoriteRecipeIds: StateFlow<Set<String>> = _favoriteRecipeIds.asStateFlow()
-//
-//    /**
-//     * Call getRecipes() on init so we can display status immediately.
-//     */
-//    /*init {
-//        // Load desserts by default when the ViewModel is first created
-//        getRecipes("Dessert")
-//    }*/
-//
-//    fun toggleFavorite(meal: Meal) {
-//        viewModelScope.launch {
-//            _favoriteRecipeIds.update { currentFavorites ->
-//                if (currentFavorites.contains(meal.id)) {
-//                    currentFavorites - meal.id
-//                } else {
-//                    currentFavorites + meal.id
-//                }
-//            }
-//        }
-//    }
-//
-//    // Gets full recipe details from the repository and updates the detail UI State.
-//    fun getRecipeDetailsById(id: String) {
-//        viewModelScope.launch {
-//            recipeDetailUiState = RecipeDetailUiState.Loading
-//            recipeDetailUiState = try {
-//                val meal = recipeRepository.getRecipeDetailsById(id)
-//                RecipeDetailUiState.Success(meal)
-//            } catch (e: IOException) {
-//                // Your repository correctly throws an exception, and you catch it here.
-//                RecipeDetailUiState.Error
-//            }
-//        }
-//    }
-//
-//    /**
-//     * Gets recipe information from the API and updates the UI State.
-//     */
-//    fun getRecipes(category: String) {
-//        // ... the rest of the function stays the same
-//        viewModelScope.launch {
-//            // Check if we are already showing the correct data to avoid reloading
-//            val currentState = recipeUiState
-//            if (currentState is RecipeUiState.Success && currentState.recipes.isNotEmpty() && currentState.categoryName == category) {
-//                return@launch
-//            }
-//            // --- End of new check ---
-//            recipeUiState = RecipeUiState.Loading(category) // Pass category to Loading state
-//            recipeUiState = try {
-//                val recipes = recipeRepository.getRecipesByCategory(category)
-//                RecipeUiState.Success(recipes, category) // Pass category to Success state
-//            } catch (e: IOException) {
-//                RecipeUiState.Error
-//            }
-//        }
-//    }
-//}
 

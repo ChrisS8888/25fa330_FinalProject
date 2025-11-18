@@ -3,7 +3,7 @@ package com.example.myrecipepal.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myrecipepal.database.Recipe
-import com.example.myrecipepal.database.RecipeRepository
+import com.example.myrecipepal.database.FavoritesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -14,12 +14,12 @@ import kotlinx.coroutines.launch
  * Talks to the Room database through RecipeRepository.
  */
 class FavoritesViewModel(
-    private val repository: RecipeRepository
+    private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
     // Stream of favorites for the UI to observe.
     val favorites: StateFlow<List<Recipe>> =
-        repository.getAllFavorites()
+        favoritesRepository.getAllFavorites()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -29,14 +29,14 @@ class FavoritesViewModel(
     /** Add a recipe to favorites. */
     fun addFavorite(recipe: Recipe) {
         viewModelScope.launch {
-            repository.addFavorite(recipe)
+            favoritesRepository.addFavorite(recipe)
         }
     }
 
     /** Remove a recipe from favorites. */
     fun removeFavorite(recipe: Recipe) {
         viewModelScope.launch {
-            repository.removeFavorite(recipe)
+            favoritesRepository.removeFavorite(recipe)
         }
     }
 
@@ -47,7 +47,7 @@ class FavoritesViewModel(
      */
     fun toggleFavorite(recipe: Recipe, onResult: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
-            val nowFavorite = repository.toggleFavorite(recipe)
+            val nowFavorite = favoritesRepository.toggleFavorite(recipe)
             onResult(nowFavorite)
         }
     }

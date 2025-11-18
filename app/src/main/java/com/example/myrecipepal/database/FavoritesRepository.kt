@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
  * Repository that wraps access to the Room favorites database.
  * This is separate from the network repository in the `data` package.
  */
-class RecipeRepository(
+class FavoritesRepository(
     private val recipeDao: RecipeDao
 ) {
 

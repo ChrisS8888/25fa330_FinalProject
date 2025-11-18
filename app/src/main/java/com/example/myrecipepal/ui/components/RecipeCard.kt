@@ -4,7 +4,10 @@ package com.example.myrecipepal.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -59,11 +62,18 @@ fun RecipeCard(
                     // Use align on the modifier inside the Box
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Yellow else Color.Gray
-                    )
+                    Box {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Favorite",
+                            tint = if (isFavorite) Color.Yellow else Color.Black
+                        )
+                        /*Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = null,
+                            tint = if (isFavorite) Color.Red else Color.Transparent
+                        )*/
+                    }
                 }
             }
             // --- End of the fix ---

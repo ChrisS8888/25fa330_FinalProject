@@ -13,6 +13,6 @@ class MyRecipePalApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         // Create the dependency container when the app starts
-        container = DefaultAppContainer()
+        container = DefaultAppContainer(this)
     }
 }

@@ -9,5 +9,7 @@ import androidx.room.PrimaryKey
 data class Recipe(
     @PrimaryKey val idMeal: String,
     val strMeal: String,
-    val strMealThumb: String
+    val strMealThumb: String?,
+    val strInstructions: String?,
+    val strCategory: String?
 )

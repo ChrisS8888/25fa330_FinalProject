@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">MyRecipePal</string>
     <string name="filter_recipes_label">Filter recipes by name...</string>
+    <!-- In res/values/strings.xml -->
+    <string name="no_favorites_message">You haven\'t saved any favorite recipes yet.</string>
 </resources>
