@@ -29,6 +29,7 @@ import com.example.myrecipepal.ui.RecipeListViewModel
 import com.example.myrecipepal.ui.components.BottomNavigationBar
 import com.example.myrecipepal.ui.theme.MyRecipePalTheme
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +94,8 @@ fun AppNavHost(
                 onSearchQueryChanged = { recipeListViewModel.onSearchQueryChanged(it) },
                 isFavorite = { meal -> favoriteIds.contains(meal.id) },
                 onFavoriteClick = { meal -> recipeListViewModel.toggleFavorite(meal) },
-                onRecipeClicked = { mealId -> navController.navigate("details/$mealId") }
+                onRecipeClicked = { mealId -> navController.navigate("details/$mealId") },
+                navigateUp = { navController.navigateUp() }
             )
         }
 
@@ -107,7 +109,10 @@ fun AppNavHost(
             LaunchedEffect(mealId) {
                 if (mealId != null) detailViewModel.getRecipeDetails(mealId)
             }
-            RecipeDetailScreen(uiState = detailViewModel.recipeDetailUiState)
+            RecipeDetailScreen(
+                uiState = detailViewModel.recipeDetailUiState,
+                navigateUp = { navController.navigateUp() }
+            )
         }
     }
 }
