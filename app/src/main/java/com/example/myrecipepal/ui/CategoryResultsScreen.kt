@@ -1,4 +1,3 @@
-// In ui/CategoryResultsScreen.kt
 package com.example.myrecipepal.ui
 
 import androidx.compose.foundation.layout.Column
@@ -9,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,6 +19,9 @@ import com.example.myrecipepal.model.Meal
 import com.example.myrecipepal.ui.components.RecipeCard
 import androidx.compose.material3.Scaffold
 import com.example.myrecipepal.ui.components.MyRecipePalTopAppBar
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import com.example.myrecipepal.ui.components.FoodPatternBackground
 
 @Composable
 fun CategoryResultsScreen(
@@ -31,64 +34,85 @@ fun CategoryResultsScreen(
     navigateUp: () -> Unit,                    // For navigating back
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        topBar = {
-            MyRecipePalTopAppBar(
-                title = "Recipes",
-                canNavigateBack = true,
-                navigateUp = navigateUp
-            )
-        },
-        modifier = modifier
-    ) { innerPadding ->
-        // Use a Column to place the search bar above the recipe grid.
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
 
-            // The search bar UI. It's connected to the ViewModel via the parameters.
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = onSearchQueryChanged,
-                label = { Text(stringResource(R.string.filter_recipes_label)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                singleLine = true
-            )
+    FoodPatternBackground(modifier = modifier) {
+        Scaffold(
+            topBar = {
+                MyRecipePalTopAppBar(
+                    title = "Recipes",
+                    canNavigateBack = true,
+                    navigateUp = navigateUp,
+                )
+            },
+            //modifier = modifier
+            // 2. CRITICAL: Make the Scaffold transparent so the background shows through!
+            containerColor = Color.Transparent,
+            modifier = Modifier.fillMaxSize()
+        ) { innerPadding ->
+            // Use a Column to place the search bar above the recipe grid.
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
 
-            // This `when` block handles showing the correct UI for the current state.
-            when (uiState) {
-                is RecipeUiState.Loading -> {
-                    // Use the category name from the Loading state.
-                    Text(
-                        "Loading recipes for ${uiState.categoryName}...",
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+                // The search bar UI. It's connected to the ViewModel via the parameters.
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChanged,
+                    label = {
+                        Text(stringResource(R.string.filter_recipes_label),
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        ) },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        cursorColor = Color.Black,
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Gray,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    singleLine = true
+                )
 
-                is RecipeUiState.Success -> {
-                    // Check if the list is empty because of a filter.
-                    if (uiState.recipes.isEmpty() && searchQuery.isNotEmpty()) {
+                // This `when` block handles showing the correct UI for the current state.
+                when (uiState) {
+                    is RecipeUiState.Loading -> {
+                        // Use the category name from the Loading state.
                         Text(
-                            "No recipes found for '$searchQuery'",
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    } else {
-                        // If we have recipes, display them in the grid.
-                        RecipeGrid(
-                            recipes = uiState.recipes, // This list is now filtered by the ViewModel
-                            onRecipeClicked = onRecipeClicked,
-                            isFavorite = isFavorite,
-                            onFavoriteClick = onFavoriteClick
+                            "Loading recipes for ${uiState.categoryName}...",
+                            modifier = Modifier.padding(16.dp),
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
                         )
                     }
-                }
 
-                is RecipeUiState.Error -> {
-                    Text("Error: Failed to load recipes.", modifier = Modifier.padding(16.dp))
+                    is RecipeUiState.Success -> {
+                        // Check if the list is empty because of a filter.
+                        if (uiState.recipes.isEmpty() && searchQuery.isNotEmpty()) {
+                            Text(
+                                "No recipes found for '$searchQuery'",
+                                modifier = Modifier.padding(16.dp),
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold
+                            )
+                        } else {
+                            // If we have recipes, display them in the grid.
+                            RecipeGrid(
+                                recipes = uiState.recipes, // This list is now filtered by the ViewModel
+                                onRecipeClicked = onRecipeClicked,
+                                isFavorite = isFavorite,
+                                onFavoriteClick = onFavoriteClick
+                            )
+                        }
+                    }
+
+                    is RecipeUiState.Error -> {
+                        Text("Error: Failed to load recipes.", modifier = Modifier.padding(16.dp))
+                    }
                 }
             }
         }

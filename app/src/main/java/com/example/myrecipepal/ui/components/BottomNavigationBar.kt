@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
-// In ui/components/BottomNavigationBar.kt
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     NavigationBar {

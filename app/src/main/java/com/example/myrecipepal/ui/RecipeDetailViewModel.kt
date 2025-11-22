@@ -1,4 +1,3 @@
-// In ui/RecipeDetailViewModel.kt
 package com.example.myrecipepal.ui
 
 import androidx.compose.runtime.getValue

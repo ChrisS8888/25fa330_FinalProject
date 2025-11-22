@@ -1,4 +1,3 @@
-// In MainActivity.kt
 package com.example.myrecipepal
 
 import android.os.Bundle

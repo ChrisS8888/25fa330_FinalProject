@@ -1,4 +1,3 @@
-// In com/example/myrecipepal/MyRecipePalApplication.kt
 package com.example.myrecipepal
 
 import android.app.Application

@@ -11,10 +11,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -22,9 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import androidx.compose.material3.Scaffold
+import com.example.myrecipepal.ui.components.FoodPatternBackground
 import com.example.myrecipepal.ui.components.MyRecipePalTopAppBar
-
 
 @Composable
 fun RecipeDetailScreen(
@@ -32,117 +33,132 @@ fun RecipeDetailScreen(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        topBar = {
-            MyRecipePalTopAppBar(
-                title = "Recipe Details",
-                canNavigateBack = true,
-                navigateUp = navigateUp
-            )
-        },
-        modifier = modifier
-    ) { innerPadding ->
-        when (uiState) {
-            is RecipeDetailUiState.Loading -> {
-                // Show a loading spinner in the center of the screen
-                Box(
-                    modifier = modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is RecipeDetailUiState.Success -> {
-                // Once data is loaded successfully, display the recipe details
-                val recipe = uiState.recipe
-                Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()) // Makes the content scrollable
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.Start // Align text to the start
-                ) {
-                    // Recipe Image
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(recipe.thumbnail)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = recipe.name,
-                        contentScale = ContentScale.Crop,
+    // 1. Wrap everything in the FoodPatternBackground
+    FoodPatternBackground(
+        modifier = modifier,
+        alpha = 0.1f
+    ) {
+        Scaffold(
+            topBar = {
+                MyRecipePalTopAppBar(
+                    title = "Recipe Details",
+                    canNavigateBack = true,
+                    navigateUp = navigateUp
+                )
+            },
+            // 2. Make Scaffold transparent so the food shows through
+            containerColor = Color.Transparent,
+            modifier = Modifier.fillMaxSize()
+        ) { innerPadding ->
+            when (uiState) {
+                is RecipeDetailUiState.Loading -> {
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp),
-                        // Using built-in Android drawables for placeholders
-                        placeholder = painterResource(android.R.drawable.ic_menu_gallery),
-                        error = painterResource(android.R.drawable.ic_menu_report_image)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Recipe Name
-                    Text(
-                        text = recipe.name,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Recipe Category (if available)
-                    recipe.category?.let {
-                        Text(
-                            text = "Category: $it",
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                            .padding(innerPadding)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // --- Ingredients Section ---
-                    Text(
-                        text = "Ingredients",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Call the helper function from Meal.kt and loop through the results
-                    recipe.getIngredientsWithMeasures().forEach { ingredient ->
-                        Text(
-                            text = "• $ingredient", // Add a bullet point for each ingredient
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // --- Instructions Section ---
-                    Text(
-                        text = "Instructions",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    // Your repository ensures instructions are not null/blank here
-                    Text(
-                        text = recipe.instructions!!,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
                 }
-            }
 
-            is RecipeDetailUiState.Error -> {
-                // Show an error message
-                Box(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Error: Failed to load recipe.")
+                is RecipeDetailUiState.Success -> {
+                    val recipe = uiState.recipe
+                    Column(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        // Recipe Image
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(recipe.thumbnail)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = recipe.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(250.dp),
+                            placeholder = painterResource(android.R.drawable.ic_menu_gallery),
+                            error = painterResource(android.R.drawable.ic_menu_report_image)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Recipe Name - Force Black Color
+                        Text(
+                            text = recipe.name,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Recipe Category - Force Black Color
+                        recipe.category?.let {
+                            Text(
+                                text = "Category: $it",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Black
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // --- Ingredients ---
+                        Text(
+                            text = "Ingredients",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        recipe.getIngredientsWithMeasures().forEach { ingredient ->
+                            Text(
+                                text = "• $ingredient",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(bottom = 4.dp),
+                                color = Color.Black
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // --- Instructions ---
+                        Text(
+                            text = "Instructions",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = recipe.instructions ?: "",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                is RecipeDetailUiState.Error -> {
+                    Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error: Failed to load recipe.",
+                            color = Color.Black
+                        )
+                    }
                 }
             }
         }

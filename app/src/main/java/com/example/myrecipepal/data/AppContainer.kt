@@ -1,4 +1,3 @@
-// In data/AppContainer.kt
 package com.example.myrecipepal.data
 
 import com.example.myrecipepal.database.FavoritesRepository

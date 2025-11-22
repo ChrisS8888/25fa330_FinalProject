@@ -18,12 +18,12 @@ fun MyRecipePalTopAppBar(
     title: String,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     CenterAlignedTopAppBar(
         title = { Text(title) },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.primary
         ),
         modifier = modifier,
         navigationIcon = {
@@ -38,3 +38,4 @@ fun MyRecipePalTopAppBar(
         }
     )
 }
+
