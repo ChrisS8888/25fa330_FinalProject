@@ -92,11 +92,26 @@ dependencies {
     //For Floating Food Home Screen
     implementation("androidx.compose.material:material-icons-extended:1.7.5")
 
+    //Unit Testing
     testImplementation(libs.junit)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+
+    // Core ViewModel Testing Libraries
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
+
+    // Mock for creating mock objects
+    testImplementation("io.mockk:mockk:1.13.11")
+
+    //Instrumentation Testing
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    // Needed for testing Navigation controller
+    androidTestImplementation("androidx.navigation:navigation-testing:2.7.7")
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

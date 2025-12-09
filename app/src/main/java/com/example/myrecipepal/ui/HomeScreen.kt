@@ -32,12 +32,9 @@ fun HomeScreen(
     onCategorySelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // --- 1. Define your Custom Pixel Font here ---
-    // Ensure you have a file named 'pixel_font.ttf' inside 'res/font/'
-    // If your file is named differently, change R.font.pixel_font to match.
     val pixelFont = androidx.compose.ui.text.font.FontFamily(Font(R.font.pixelfont))
 
-    // Wrap the screen content in our custom background
+    // Wrap the screen content in custom background
     FoodPatternBackground(modifier = modifier) {
         Column(
             modifier = Modifier
@@ -88,8 +85,6 @@ fun HomeScreen(
                     Text(
                         text = category,
                         style = MaterialTheme.typography.titleMedium
-                        //fontFamily = pixelFont,
-                        //color = Color.White
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))

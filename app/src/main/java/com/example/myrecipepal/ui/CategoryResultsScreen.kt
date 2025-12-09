@@ -44,8 +44,6 @@ fun CategoryResultsScreen(
                     navigateUp = navigateUp,
                 )
             },
-            //modifier = modifier
-            // 2. CRITICAL: Make the Scaffold transparent so the background shows through!
             containerColor = Color.Transparent,
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->

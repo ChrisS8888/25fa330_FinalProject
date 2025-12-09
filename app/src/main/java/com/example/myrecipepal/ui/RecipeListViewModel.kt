@@ -23,24 +23,23 @@ sealed interface RecipeUiState {
     data class Loading(val categoryName: String) : RecipeUiState
 }
 
-// FIX: The constructor accepts BOTH repositories
 class RecipeListViewModel(
     private val recipeRepository: RecipeRepository,
     private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
-    // --- FROM OLD CODE: The mutable State that stores the UI status ---
+    // The mutable State that stores the UI status ---
     var recipeUiState: RecipeUiState by mutableStateOf(RecipeUiState.Loading(""))
         private set
 
-    // --- FROM OLD CODE: State to hold the user's search text ---
+    // State to hold the user's search text ---
     var searchQuery by mutableStateOf("")
         private set
 
-    // --- FROM OLD CODE: Private property to hold the original, unfiltered list for searching ---
+    // Private property to hold the original, unfiltered list for searching ---
     private var originalRecipes: List<Meal> = emptyList()
 
-    // --- FROM NEW CODE: This holds the IDs of all favorited recipes from the database ---
+    // This holds the IDs of all favorited recipes from the database ---
     val favoriteRecipeIds: StateFlow<Set<String>> =
         favoritesRepository.getAllFavorites()
             .map { favoriteRecipes -> favoriteRecipes.map { it.idMeal }.toSet() }
@@ -51,11 +50,10 @@ class RecipeListViewModel(
             )
 
     init {
-        // We will now use your original getRecipes function.
         getRecipes("Dessert") // Initial fetch
     }
 
-    // --- FROM NEW CODE: The updated toggleFavorite function that writes to the database ---
+    // The updated toggleFavorite function that writes to the database ---
     fun toggleFavorite(meal: Meal) {
         viewModelScope.launch {
             val recipe = Recipe(
@@ -74,7 +72,7 @@ class RecipeListViewModel(
         }
     }
 
-    // --- FROM OLD CODE: Your original function to fetch recipes from the API. This is what MainActivity should call. ---
+    // Function to fetch recipes from the API. This is what MainActivity should call.
     fun getRecipes(category: String) {
         viewModelScope.launch {
             // Avoids reloading if the data is already present and the category is the same.
@@ -96,7 +94,7 @@ class RecipeListViewModel(
         }
     }
 
-    // --- FROM OLD CODE: Your function to handle search bar changes. It works with the RecipeUiState. ---
+    // Function to handle search bar changes. It works with the RecipeUiState.
     fun onSearchQueryChanged(newQuery: String) {
         searchQuery = newQuery
         val currentState = recipeUiState

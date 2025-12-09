@@ -19,7 +19,6 @@ class NetworkRecipeRepository(
     private val mealDbApiService: MealDbApiService
 ) : RecipeRepository {
     override suspend fun getRecipesByCategory(category: String): List<Meal> {
-        // ▼▼▼ FIX 1 ▼▼▼
         // If the meals list from the API is null, return an empty list instead.
         val meals = mealDbApiService.getRecipesByCategory(category).meals ?: emptyList()
 
@@ -30,7 +29,6 @@ class NetworkRecipeRepository(
     }
 
     override suspend fun getRecipeDetailsById(id: String): Meal {
-        // ▼▼▼ FIX 2 ▼▼▼
         // Safely get the first meal from the list. If the list is null or empty,
         // throw an exception that the ViewModel can catch.
         val meal = mealDbApiService.getRecipeDetailsById(id).meals?.firstOrNull()
