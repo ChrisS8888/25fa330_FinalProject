@@ -155,8 +155,10 @@ fun RecipeDetailScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Error: Failed to load recipe.",
-                            color = Color.Black
+                            text = "Error: Failed to load recipe. Turn on the WiFi or Mobile Data...",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                 }

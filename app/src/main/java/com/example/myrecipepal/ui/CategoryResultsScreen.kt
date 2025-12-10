@@ -109,7 +109,11 @@ fun CategoryResultsScreen(
                     }
 
                     is RecipeUiState.Error -> {
-                        Text("Error: Failed to load recipes.", modifier = Modifier.padding(16.dp))
+                        Text("Error: Failed to load recipes. Turn on the WiFi or Mobile Data...",
+                            modifier = Modifier.padding(16.dp),
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
